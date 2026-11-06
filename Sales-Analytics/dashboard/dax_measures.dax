@@ -1,0 +1,191 @@
+/* ==============================================================================
+   POWER BI DAX MEASURES LIBRARY
+   PROJECT: Sales Performance & Business Intelligence Dashboard
+   AUTHOR: Syamala Meka
+   DATA MODEL: Star Schema (FactSales, DimDate, DimCustomer, DimProduct, DimGeography)
+   ============================================================================== */
+
+// ==========================================
+// 1. BASE MEASURES
+// ==========================================
+
+Total Sales = 
+SUM(sales_orders[Sales])
+
+Total Profit = 
+SUM(sales_orders[Profit])
+
+Total Cost = 
+SUM(sales_orders[Cost])
+
+Gross Sales = 
+SUM(sales_orders[Gross_Sales])
+
+Total Units Sold = 
+SUM(sales_orders[Quantity])
+
+Total Orders = 
+DISTINCTCOUNT(sales_orders[Order_ID])
+
+Total Customers = 
+DISTINCTCOUNT(sales_orders[Customer_ID])
+
+Profit Margin % = 
+DIVIDE([Total Profit], [Total Sales], 0)
+
+Average Order Value (AOV) = 
+DIVIDE([Total Sales], [Total Orders], 0)
+
+Average Revenue Per Customer (ARPU) = 
+DIVIDE([Total Sales], [Total Customers], 0)
+
+Average Discount % = 
+AVERAGE(sales_orders[Discount])
+
+
+// ==========================================
+// 2. TIME INTELLIGENCE & YoY COMPARISONS
+// ==========================================
+
+// Prior Year Sales (LY)
+Sales LY = 
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR('DimDate'[Date])
+)
+
+// Year-over-Year Sales Growth ($)
+Sales YoY Delta = 
+[Total Sales] - [Sales LY]
+
+// Year-over-Year Sales Growth (%) -> Target: +12.5%
+Sales YoY Growth % = 
+DIVIDE([Sales YoY Delta], [Sales LY], 0)
+
+// Prior Year Profit (LY)
+Profit LY = 
+CALCULATE(
+    [Total Profit],
+    SAMEPERIODLASTYEAR('DimDate'[Date])
+)
+
+// Prior Year Profit Margin (%)
+Profit Margin LY = 
+CALCULATE(
+    [Profit Margin %],
+    SAMEPERIODLASTYEAR('DimDate'[Date])
+)
+
+// Profit Margin Point Difference vs LY -> Target: +2.1 pts
+Profit Margin Delta Points = 
+([Profit Margin %] - [Profit Margin LY]) * 100
+
+// Prior Year Units Sold (LY)
+Units Sold LY = 
+CALCULATE(
+    [Total Units Sold],
+    SAMEPERIODLASTYEAR('DimDate'[Date])
+)
+
+// Units Sold YoY Growth (%) -> Target: +8.3%
+Units Sold YoY Growth % = 
+DIVIDE([Total Units Sold] - [Units Sold LY], [Units Sold LY], 0)
+
+// Year-to-Date (YTD) Sales
+Sales YTD = 
+TOTALYTD([Total Sales], 'DimDate'[Date])
+
+// Prior Year-to-Date (LY YTD) Sales
+Sales LY YTD = 
+CALCULATE([Sales YTD], SAMEPERIODLASTYEAR('DimDate'[Date]))
+
+// Trailing 3-Month Moving Average
+Sales 3M Moving Avg = 
+AVERAGEX(
+    DATESINPERIOD('DimDate'[Date], LASTDATE('DimDate'[Date]), -3, MONTH),
+    [Total Sales]
+)
+
+
+// ==========================================
+// 3. TARGET PACING & FORECASTING
+// ==========================================
+
+// Annual Enterprise Quota Target
+Sales Annual Target = 24800000
+
+// Target Achievement %
+Target Achievement % = 
+DIVIDE([Sales YTD], [Sales Annual Target], 0)
+
+// Monthly Sales Baseline for Forecast
+Monthly Baseline Run Rate = 
+DIVIDE([Total Sales], DISTINCTCOUNT('DimDate'[Month]), 0)
+
+// AI Forecasted Revenue (Projected Next 6 Months)
+Forecasted Revenue = 
+VAR LastHistoricalDate = MAX(sales_orders[Order_Date])
+VAR CurrentVisualDate = MIN('DimDate'[Date])
+RETURN
+IF(
+    CurrentVisualDate > LastHistoricalDate,
+    [Sales LY] * 1.125, // Applying calibrated 12.5% YoY growth rate
+    BLANK()
+)
+
+
+// ==========================================
+// 4. KEY INFLUENCERS & DRIVERS
+// ==========================================
+
+// Electronics Contribution %
+Electronics Sales Share % = 
+DIVIDE(
+    CALCULATE([Total Sales], sales_orders[Category] = "Electronics"),
+    [Total Sales],
+    0
+)
+
+// West Region Contribution %
+West Region Sales Share % = 
+DIVIDE(
+    CALCULATE([Total Sales], sales_orders[Region] = "West"),
+    [Total Sales],
+    0
+)
+
+// High-Margin Low Discount Volume %
+Low Discount Sales Share % = 
+DIVIDE(
+    CALCULATE([Total Sales], sales_orders[Discount] < 0.05),
+    [Total Sales],
+    0
+)
+
+// Young Demographic (25-34) Contribution %
+Young Professional Sales Share % = 
+DIVIDE(
+    CALCULATE([Total Sales], sales_orders[Customer_Age_Group] = "25-34"),
+    [Total Sales],
+    0
+)
+
+
+// ==========================================
+// 5. DYNAMIC FORMATTING & KPI BADGES
+// ==========================================
+
+Sales YoY Badge = 
+VAR Val = [Sales YoY Growth %]
+RETURN
+IF(Val >= 0, "▲ +" & FORMAT(Val, "0.0%"), "▼ " & FORMAT(Val, "0.0%")) & " vs LY"
+
+Profit Margin YoY Badge = 
+VAR Pts = [Profit Margin Delta Points]
+RETURN
+IF(Pts >= 0, "▲ +" & FORMAT(Pts, "0.0") & "%", "▼ " & FORMAT(Pts, "0.0") & "%") & " vs LY"
+
+Units Sold YoY Badge = 
+VAR Val = [Units Sold YoY Growth %]
+RETURN
+IF(Val >= 0, "▲ +" & FORMAT(Val, "0.0%"), "▼ " & FORMAT(Val, "0.0%")) & " vs LY"

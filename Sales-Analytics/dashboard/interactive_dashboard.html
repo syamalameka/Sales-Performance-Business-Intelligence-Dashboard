@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Performance & Business Intelligence Dashboard | Executive Suite</title>
+  <style>
+    :root {
+      --bg-canvas: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --primary-blue: #0066CC;
+      --primary-blue-hover: #0052A3;
+      --accent-blue: #0284C7;
+      --light-blue: #EBF3FB;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --card-radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body.dark-mode {
+      --bg-canvas: #0B132B;
+      --card-bg: #1C2541;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-color: #334155;
+      --primary-blue: #38BDF8;
+      --light-blue: #1E293B;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Top Command Header */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 14px 22px;
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0066CC, #0284C7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 19px;
+      box-shadow: 0 2px 6px rgba(0,102,204,0.3);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    select {
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--card-bg);
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.15);
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      background: var(--card-bg);
+      color: var(--text-main);
+    }
+
+    .btn:hover {
+      background: var(--light-blue);
+      border-color: var(--primary-blue);
+    }
+
+    .btn-primary {
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-blue-hover);
+    }
+
+    /* Live Filter Badges Row */
+    .active-filters-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 4px 6px;
+    }
+
+    .filter-pill {
+      background: var(--light-blue);
+      color: var(--primary-blue);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .filter-pill:hover::after {
+      content: " ✕";
+    }
+
+    /* KPI Row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border-radius: var(--card-radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .kpi-icon {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .kpi-value {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+      margin: 4px 0;
+      transition: all 0.3s;
+    }
+
+    .kpi-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+    }
+
+    .kpi-badge {
+      font-weight: 700;
+      color: var(--accent-green);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-subtitle {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1.1fr;
+      gap: 14px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 1.15fr 1.45fr 1.25fr;
+      gap: 14px;
+    }
+
+    .grid-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--card-radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Key Influencers Card */
+    .inf-toggle-bar {
+      display: flex;
+      gap: 16px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .inf-tab-btn {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .inf-tab-btn.active {
+      color: var(--text-main);
+      border-bottom: 2.5px solid var(--primary-blue);
+      margin-bottom: -10px;
+      padding-bottom: 8px;
+    }
+
+    .inf-dropdown-row {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .influencer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .influencer-item {
+      display: grid;
+      grid-template-columns: 1.3fr 1.7fr;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .influencer-item:hover {
+      background: var(--light-blue);
+    }
+
+    .factor-name {
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .factor-bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .factor-track {
+      flex: 1;
+      height: 7px;
+      background: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .factor-fill {
+      height: 100%;
+      background: var(--primary-blue);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .factor-bubble {
+      background: var(--primary-blue);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* Regional Breakdown */
+    .region-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .region-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      background: var(--bg-canvas);
+      border-radius: 6px;
+      font-size: 13px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .region-row:hover {
+      background: var(--light-blue);
+      border-color: var(--primary-blue);
+      transform: translateX(3px);
+    }
+
+    .region-row-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .region-row-value {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Category Bar Chart */
+    .bar-chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .bar-row:hover {
+      background: var(--light-blue);
+    }
+
+    .bar-label-group {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .bar-track {
+      height: 22px;
+      background: var(--bg-canvas);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary-blue);
+      border-radius: 4px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .axis-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 6px;
+      margin-top: 4px;
+    }
+
+    /* Forecast Visual */
+    .forecast-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 145px;
+      padding-top: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .forecast-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+      cursor: pointer;
+    }
+
+    .forecast-bar {
+      width: 28px;
+      background: #93C5FD;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s ease, background 0.2s;
+    }
+
+    .forecast-bar:hover {
+      background: var(--primary-blue);
+    }
+
+    .forecast-month {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Tab Engine */
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: tabFadeIn 0.2s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tables */
+    .data-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--bg-canvas);
+      color: var(--text-muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .data-table tr:hover {
+      background: var(--light-blue);
+    }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tag-green { background: #DCFCE7; color: #166534; }
+    .tag-blue { background: #DBEAFE; color: #1E40AF; }
+    .tag-orange { background: #FFEDD5; color: #9A3412; }
+
+    /* SQL Sandbox Section */
+    .sql-code-box {
+      background: #0F172A;
+      color: #38BDF8;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      background: var(--card-bg);
+      border-radius: var(--card-radius);
+      display: flex;
+      padding: 8px 14px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      gap: 10px;
+      position: sticky;
+      bottom: 10px;
+      z-index: 100;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .nav-tab:hover {
+      background: var(--bg-canvas);
+      color: var(--text-main);
+    }
+
+    .nav-tab.active {
+      color: var(--primary-blue);
+      background: var(--light-blue);
+      box-shadow: inset 0 -2.5px 0 var(--primary-blue);
+    }
+
+    /* Tooltip */
+    .tooltip-popup {
+      position: fixed;
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="tooltip" class="tooltip-popup"></div>
+
+  <!-- Top Command Header -->
+  <div class="top-header">
+    <div class="brand-section">
+      <div class="brand-logo">BI</div>
+      <div class="brand-text">
+        <h1>Sales Performance & Business Intelligence Dashboard</h1>
+        <p>Enterprise Analytics Platform | Fiscal Years 2024 - 2025</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="filter-item">
+        <span>Year:</span>
+        <select id="yearSelect" onchange="runFilters()">
+          <option value="2025" selected>2025 (Current Year - $24.8M)</option>
+          <option value="2024">2024 (Prior Year - $22.0M)</option>
+          <option value="ALL">All-Time ($46.9M)</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <span>Category:</span>
+        <select id="catSelect" onchange="runFilters()">
+          <option value="ALL" selected>All Categories</option>
+          <option value="Electronics">Electronics ($16.7M)</option>
+          <option value="Furniture">Furniture ($6.1M)</option>
+          <option value="Clothing">Clothing ($1.1M)</option>
+          <option value="Accessories">Accessories ($0.9M)</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <span>Region:</span>
+        <select id="regSelect" onchange="runFilters()">
+          <option value="ALL" selected>All Regions</option>
+          <option value="West">West Territory ($9.7M)</option>
+          <option value="East">East Territory ($6.8M)</option>
+          <option value="South">South Territory ($5.6M)</option>
+          <option value="North">North Territory ($2.8M)</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="resetFilters()">↺ Reset</button>
+      <button class="btn" onclick="toggleDarkMode()">🌓 Theme</button>
+      <button class="btn btn-primary" onclick="exportDataCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Active Filter Pills Bar -->
+  <div class="active-filters-bar" id="activeFiltersBar">
+    <span>Active Slicers:</span>
+    <span class="filter-pill" id="pillYear">Year: 2025</span>
+    <span class="filter-pill" id="pillCat">Category: All</span>
+    <span class="filter-pill" id="pillReg">Region: All</span>
+  </div>
+
+  <!-- Scoreboard KPI Row (Always Visible) -->
+  <div class="kpi-row">
+    <div class="kpi-card" onclick="highlightKPI('sales')">
+      <div class="kpi-header">
+        <span class="kpi-title">Total Sales</span>
+        <span class="kpi-icon">💰</span>
+      </div>
+      <div class="kpi-value" id="kpiSalesVal">$24.8M</div>
+      <div class="kpi-footer">
+        <span class="kpi-badge" id="kpiSalesBadge">▲ 12.5% vs LY</span>
+        <span class="kpi-subtitle" id="kpiSalesSub">Target: $24.8M</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" onclick="highlightKPI('margin')">
+      <div class="kpi-header">
+        <span class="kpi-title">Profit Margin</span>
+        <span class="kpi-icon">📈</span>
+      </div>
+      <div class="kpi-value" id="kpiMarginVal">32.4%</div>
+      <div class="kpi-footer">
+        <span class="kpi-badge" id="kpiMarginBadge">▲ 2.1% vs LY</span>
+        <span class="kpi-subtitle" id="kpiMarginSub">Prior: 30.3%</span>
+      </div>
+    </div>
+
+    <div class="kpi-card" onclick="highlightKPI('units')">
+      <div class="kpi-header">
+        <span class="kpi-title">Units Sold</span>
+        <span class="kpi-icon">📦</span>
+      </div>
+      <div class="kpi-value" id="kpiUnitsVal">18.6K</div>
+      <div class="kpi-footer">
+        <span class="kpi-badge" id="kpiUnitsBadge">▲ 8.3% vs LY</span>
+        <span class="kpi-subtitle" id="kpiUnitsSub">Prior: 17.0K</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-title">Revenue Growth Momentum</span>
+        <span class="kpi-icon">↺ ✓ ⓘ</span>
+      </div>
+      <div class="sparkline-container" style="height:44px; margin-top:6px;">
+        <svg viewBox="0 0 160 40" style="width:100%; height:100%;">
+          <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0066CC" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#0066CC" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <path d="M 0 32 Q 20 20, 35 28 T 70 12 T 100 24 T 130 5 T 160 10 L 160 40 L 0 40 Z" fill="url(#sg)"/>
+          <path d="M 0 32 Q 20 20, 35 28 T 70 12 T 100 24 T 130 5 T 160 10" fill="none" stroke="#0066CC" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <div class="kpi-footer" style="margin-top:2px;">
+        <span class="kpi-badge">Monthly Surge</span>
+        <span class="kpi-subtitle">Consistent H2 Growth</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 1: EXECUTIVE SUMMARY ================= -->
+  <div id="page-exec" class="tab-content active">
+    <div class="grid-2col">
+      <!-- Chart 1: Sales Trends Line Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Sales Trends (Revenue by Month & Forecast)</div>
+          <div class="legend-group">
+            <div class="legend-item"><div class="dot" style="background:#0066CC;"></div> Actual Revenue</div>
+            <div class="legend-item"><div class="dot" style="background:#93C5FD;"></div> Forecast (Nov/Dec)</div>
+          </div>
+        </div>
+        <div style="height: 220px; width: 100%;">
+          <svg viewBox="0 0 600 200" style="width:100%; height:100%;">
+            <!-- Grid Lines -->
+            <line x1="40" y1="30" x2="580" y2="30" stroke="var(--border-color)" stroke-width="1"/>
+            <line x1="40" y1="80" x2="580" y2="80" stroke="var(--border-color)" stroke-width="1"/>
+            <line x1="40" y1="130" x2="580" y2="130" stroke="var(--border-color)" stroke-width="1"/>
+            <line x1="40" y1="170" x2="580" y2="170" stroke="var(--border-color)" stroke-width="1"/>
+
+            <text x="10" y="35" font-size="11" fill="var(--text-muted)">$3M</text>
+            <text x="10" y="85" font-size="11" fill="var(--text-muted)">$2M</text>
+            <text x="10" y="135" font-size="11" fill="var(--text-muted)">$1M</text>
+            <text x="10" y="175" font-size="11" fill="var(--text-muted)">$0M</text>
+
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0066CC" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#0066CC" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <polygon points="50,160 95,145 145,120 195,140 245,100 295,115 345,75 395,98 445,70 495,70 495,170 50,170" fill="url(#areaGrad)"/>
+
+            <polyline points="50,160 95,145 145,120 195,140 245,100 295,115 345,75 395,98 445,70 495,70" 
+                      fill="none" stroke="#0066CC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="495,70 540,55 575,38" 
+                      fill="none" stroke="#0066CC" stroke-width="2" stroke-dasharray="5,4" stroke-linecap="round"/>
+
+            <!-- Markers with Tooltips -->
+            <circle cx="50" cy="160" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Jan: $0.53M Sales')" onmouseout="hideTip()"/>
+            <circle cx="95" cy="145" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Feb: $0.92M Sales')" onmouseout="hideTip()"/>
+            <circle cx="145" cy="120" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Mar: $1.53M Sales')" onmouseout="hideTip()"/>
+            <circle cx="195" cy="140" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Apr: $1.04M Sales')" onmouseout="hideTip()"/>
+            <circle cx="245" cy="100" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'May: $1.82M Sales')" onmouseout="hideTip()"/>
+            <circle cx="295" cy="115" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Jun: $1.63M Sales')" onmouseout="hideTip()"/>
+            <circle cx="345" cy="75" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Jul: $2.32M Sales (Surge)')" onmouseout="hideTip()"/>
+            <circle cx="395" cy="98" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Aug: $1.82M Sales')" onmouseout="hideTip()"/>
+            <circle cx="445" cy="70" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Sep: $2.42M Sales')" onmouseout="hideTip()"/>
+            <circle cx="495" cy="70" r="4.5" fill="#0066CC" onmouseover="showTip(event, 'Oct: $2.42M Sales')" onmouseout="hideTip()"/>
+            <circle cx="540" cy="55" r="4.5" fill="#93C5FD" onmouseover="showTip(event, 'Nov: $2.52M (Forecast)')" onmouseout="hideTip()"/>
+            <circle cx="575" cy="38" r="4.5" fill="#93C5FD" onmouseover="showTip(event, 'Dec: $2.83M (Forecast Peak)')" onmouseout="hideTip()"/>
+
+            <text x="45" y="190" font-size="11" fill="var(--text-muted)">Jan</text>
+            <text x="90" y="190" font-size="11" fill="var(--text-muted)">Feb</text>
+            <text x="140" y="190" font-size="11" fill="var(--text-muted)">Mar</text>
+            <text x="190" y="190" font-size="11" fill="var(--text-muted)">Apr</text>
+            <text x="240" y="190" font-size="11" fill="var(--text-muted)">May</text>
+            <text x="290" y="190" font-size="11" fill="var(--text-muted)">Jun</text>
+            <text x="340" y="190" font-size="11" fill="var(--text-muted)">Jul</text>
+            <text x="390" y="190" font-size="11" fill="var(--text-muted)">Aug</text>
+            <text x="440" y="190" font-size="11" fill="var(--text-muted)">Sep</text>
+            <text x="490" y="190" font-size="11" fill="var(--text-muted)">Oct</text>
+            <text x="535" y="190" font-size="11" fill="var(--text-muted)">Nov</text>
+            <text x="570" y="190" font-size="11" fill="var(--text-muted)">Dec</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Chart 2: Key Influencers (AI Machine Learning Visual) -->
+      <div class="card">
+        <div class="inf-toggle-bar">
+          <div class="inf-tab-btn active" id="infTabInc" onclick="toggleInfluencer('inc')">Key Influencers</div>
+          <div class="inf-tab-btn" id="infTabDec" onclick="toggleInfluencer('dec')">Top Segments &gt;</div>
+        </div>
+        <div class="inf-dropdown-row">
+          What influences Revenue to
+          <select id="influencerDir" onchange="updateInfluencers()" style="padding:2px 8px; font-size:12px;">
+            <option value="increase">Increase</option>
+            <option value="decrease">Decrease</option>
+          </select>
+        </div>
+        <div class="influencer-list" id="influencerList">
+          <div class="influencer-item" onclick="filterByCategory('Electronics')">
+            <div class="factor-name">Product Category is Electronics</div>
+            <div class="factor-bar-wrapper">
+              <div class="factor-track"><div class="factor-fill" style="width: 86%;"></div></div>
+              <div class="factor-bubble">+23.5%</div>
+            </div>
+          </div>
+          <div class="influencer-item" onclick="filterByRegion('West')">
+            <div class="factor-name">Region is West</div>
+            <div class="factor-bar-wrapper">
+              <div class="factor-track"><div class="factor-fill" style="width: 58%;"></div></div>
+              <div class="factor-bubble">+12.2%</div>
+            </div>
+          </div>
+          <div class="influencer-item" onclick="navigateToTab('prod')">
+            <div class="factor-name">Discount &lt; 5%</div>
+            <div class="factor-bar-wrapper">
+              <div class="factor-track"><div class="factor-fill" style="width: 44%;"></div></div>
+              <div class="factor-bubble">+8.7%</div>
+            </div>
+          </div>
+          <div class="influencer-item" onclick="navigateToTab('cust')">
+            <div class="factor-name">Customer Age Group is 25-34</div>
+            <div class="factor-bar-wrapper">
+              <div class="factor-track"><div class="factor-fill" style="width: 33%;"></div></div>
+              <div class="factor-bubble">+6.7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 3 Visuals -->
+    <div class="grid-3col">
+      <!-- Visual 3: Sales by Region -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Sales by Region (Territory Share)</div>
+        </div>
+        <div class="region-stats">
+          <div class="region-row" onclick="filterByRegion('West')">
+            <div class="region-row-name"><span class="dot" style="background:#0066CC;"></span> West Territory</div>
+            <div class="region-row-value" id="regTxtWest">$9.68M (39%)</div>
+          </div>
+          <div class="region-row" onclick="filterByRegion('East')">
+            <div class="region-row-name"><span class="dot" style="background:#0284C7;"></span> East Territory</div>
+            <div class="region-row-value" id="regTxtEast">$6.75M (27%)</div>
+          </div>
+          <div class="region-row" onclick="filterByRegion('South')">
+            <div class="region-row-name"><span class="dot" style="background:#38BDF8;"></span> South Territory</div>
+            <div class="region-row-value" id="regTxtSouth">$5.63M (23%)</div>
+          </div>
+          <div class="region-row" onclick="filterByRegion('North')">
+            <div class="region-row-name"><span class="dot" style="background:#93C5FD;"></span> North Territory</div>
+            <div class="region-row-value" id="regTxtNorth">$2.78M (11%)</div>
+          </div>
+        </div>
+        <div style="margin-top:12px; font-size:11.5px; color:var(--text-muted); text-align:center;">
+          ● NORTH &nbsp; ● SOUTH &nbsp; ● EAST &nbsp; ● WEST
+        </div>
+      </div>
+
+      <!-- Visual 4: Profit by Product Category -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Profit by Product Category</div>
+        </div>
+        <div class="bar-chart-container">
+          <div class="bar-row" onclick="filterByCategory('Electronics')">
+            <div class="bar-label-group">
+              <span>Electronics</span>
+              <span id="catProfValElec">$5.62M (33.6%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="catBarElec" style="width: 88%;"></div>
+            </div>
+          </div>
+          <div class="bar-row" onclick="filterByCategory('Furniture')">
+            <div class="bar-label-group">
+              <span>Furniture</span>
+              <span id="catProfValFurn">$1.83M (30.0%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="catBarFurn" style="width: 55%;"></div>
+            </div>
+          </div>
+          <div class="bar-row" onclick="filterByCategory('Clothing')">
+            <div class="bar-label-group">
+              <span>Clothing</span>
+              <span id="catProfValCloth">$0.35M (30.7%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="catBarCloth" style="width: 25%;"></div>
+            </div>
+          </div>
+          <div class="bar-row" onclick="filterByCategory('Accessories')">
+            <div class="bar-label-group">
+              <span>Accessories</span>
+              <span id="catProfValAcc">$0.26M (29.7%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" id="catBarAcc" style="width: 18%;"></div>
+            </div>
+          </div>
+          <div class="axis-labels">
+            <span>$0M</span>
+            <span>$5M</span>
+            <span>$10M</span>
+            <span>$15M</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual 5: AI Forecast (Next 6 Months) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">AI Forecast (Next 6 Months)</div>
+          <span style="font-size:12px; color:var(--text-muted);">🖉 ⋯</span>
+        </div>
+        <div class="forecast-container">
+          <div class="forecast-col" onmouseover="showTip(event, 'Jan Forecast: $0.60M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 48px;"></div>
+            <div class="forecast-month">Jan</div>
+          </div>
+          <div class="forecast-col" onmouseover="showTip(event, 'Feb Forecast: $1.03M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 68px;"></div>
+            <div class="forecast-month">Feb</div>
+          </div>
+          <div class="forecast-col" onmouseover="showTip(event, 'Mar Forecast: $1.72M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 94px;"></div>
+            <div class="forecast-month">Mar</div>
+          </div>
+          <div class="forecast-col" onmouseover="showTip(event, 'Apr Forecast: $1.17M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 118px;"></div>
+            <div class="forecast-month">Apr</div>
+          </div>
+          <div class="forecast-col" onmouseover="showTip(event, 'May Forecast: $2.05M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 136px;"></div>
+            <div class="forecast-month">May</div>
+          </div>
+          <div class="forecast-col" onmouseover="showTip(event, 'Jun Forecast: $1.83M (+12.5% YoY)')" onmouseout="hideTip()">
+            <div class="forecast-bar" style="height: 148px;"></div>
+            <div class="forecast-month">Jun</div>
+          </div>
+        </div>
+        <div style="font-size:11.5px; color:var(--text-muted); text-align:center; margin-top:10px;">
+          Linear Forecast Projection (Confidence: 95%)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 2: SALES TRENDS ================= -->
+  <div id="page-trends" class="tab-content">
+    <div class="grid-equal">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Monthly Revenue Pacing Table (2025 vs 2024)</div>
+          <button class="btn" style="font-size:11.5px;" onclick="exportTableToCSV('monthlyTable', 'Monthly_Revenue_Pacing.csv')">Export CSV</button>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table" id="monthlyTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>2025 Revenue</th>
+                <th>2024 Revenue</th>
+                <th>YoY Growth</th>
+                <th>Quarter</th>
+                <th>Pacing Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>January</td><td>$529,812</td><td>$471,030</td><td>+12.48%</td><td>Q1</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>February</td><td>$920,450</td><td>$818,178</td><td>+12.50%</td><td>Q1</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>March</td><td>$1,529,910</td><td>$1,360,000</td><td>+12.49%</td><td>Q1</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>April</td><td>$1,040,120</td><td>$924,550</td><td>+12.50%</td><td>Q2</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>May</td><td>$1,819,450</td><td>$1,617,280</td><td>+12.50%</td><td>Q2</td><td><span class="tag tag-green">High Volume</span></td></tr>
+              <tr><td>June</td><td>$1,629,880</td><td>$1,448,780</td><td>+12.50%</td><td>Q2</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>July</td><td>$2,319,890</td><td>$2,062,120</td><td>+12.50%</td><td>Q3</td><td><span class="tag tag-blue">Summer Surge</span></td></tr>
+              <tr><td>August</td><td>$1,820,110</td><td>$1,617,870</td><td>+12.50%</td><td>Q3</td><td><span class="tag tag-green">On Target</span></td></tr>
+              <tr><td>September</td><td>$2,420,100</td><td>$2,151,200</td><td>+12.50%</td><td>Q3</td><td><span class="tag tag-blue">Back to School</span></td></tr>
+              <tr><td>October</td><td>$2,420,050</td><td>$2,151,150</td><td>+12.50%</td><td>Q4</td><td><span class="tag tag-blue">Q4 Surge</span></td></tr>
+              <tr><td>November</td><td>$2,520,300</td><td>$2,240,260</td><td>+12.50%</td><td>Q4</td><td><span class="tag tag-blue">Black Friday</span></td></tr>
+              <tr><td>December</td><td>$2,830,420</td><td>$2,515,930</td><td>+12.50%</td><td>Q4</td><td><span class="tag tag-blue">Holiday Peak</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Seasonality Diagnosis & Supply Chain Insights</div>
+        </div>
+        <div style="font-size:13.5px; line-height:1.7; color:var(--text-main);">
+          <div style="background:var(--light-blue); padding:14px; border-radius:8px; margin-bottom:14px; border-left:4px solid var(--primary-blue);">
+            <b>H2 Revenue Dominance (65.7%):</b> Over \$16.3M of the \$24.8M annual revenue occurs between July and December.
+          </div>
+          <p style="margin-bottom:12px;">
+            <b>Trailing 3-Month Moving Average (Smooth Trend):</b> Q1 averaged \$993K/month, while Q4 accelerated to \$2.58M/month. The moving average confirms sustainable secular growth rather than isolated flash-sale anomalies.
+          </p>
+          <p style="margin-bottom:12px;">
+            <b>Lead Time Recommendation:</b> Procurement must release factory purchase orders by <b>May 1st</b> to guarantee inventory delivery ahead of the July back-to-school spike.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 3: CUSTOMER INSIGHTS ================= -->
+  <div id="page-cust" class="tab-content">
+    <div class="grid-equal">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Demographic Age Cohort Performance</div>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Age Group</th>
+                <th>Revenue</th>
+                <th>Share %</th>
+                <th>Avg Order Value</th>
+                <th>Influencer Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><b>25 - 34</b></td><td>$10,531,520</td><td>42.4%</td><td>$2,890.12</td><td><span class="tag tag-green">+6.7% Driver</span></td></tr>
+              <tr><td>35 - 44</td><td>$5,961,240</td><td>24.0%</td><td>$2,760.40</td><td><span class="tag tag-blue">Core Corporate</span></td></tr>
+              <tr><td>45 - 54</td><td>$3,725,770</td><td>15.0%</td><td>$2,680.15</td><td><span class="tag tag-blue">Standard</span></td></tr>
+              <tr><td>18 - 24</td><td>$2,980,620</td><td>12.0%</td><td>$2,540.80</td><td><span class="tag tag-orange">Entry Consumer</span></td></tr>
+              <tr><td>55+</td><td>$1,639,350</td><td>6.6%</td><td>$2,610.90</td><td><span class="tag tag-orange">Niche High-End</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">RFM Customer Lifecycle Segmentation</div>
+        </div>
+        <div style="font-size:13.5px; line-height:1.7; color:var(--text-main);">
+          <p style="margin-bottom:12px;">
+            <b>High Repeat Purchase Rate (85.2%):</b> Repeat customers generate 88% of net profit with an Average Order Value 18% higher than first-time buyers.
+          </p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+            <div style="background:var(--bg-canvas); padding:10px; border-radius:6px; border:1px solid var(--border-color);">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">CHAMPIONS / LOYAL</div>
+              <div style="font-size:20px; font-weight:800; color:#10B981;">612 Accounts</div>
+              <div style="font-size:11.5px; color:var(--text-muted);">Spend: $18.4M</div>
+            </div>
+            <div style="background:var(--bg-canvas); padding:10px; border-radius:6px; border:1px solid var(--border-color);">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">AT RISK / WIN-BACK</div>
+              <div style="font-size:20px; font-weight:800; color:#EF4444;">184 Accounts</div>
+              <div style="font-size:11.5px; color:var(--text-muted);">Lapsed > 90 Days</div>
+            </div>
+          </div>
+          <p>
+            <b>Retention Strategy:</b> Deploy automated win-back incentive sequences to the 184 at-risk accounts before the 120-day churn threshold.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 4: PRODUCT ANALYSIS ================= -->
+  <div id="page-prod" class="tab-content">
+    <div class="grid-equal">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Discount Elasticity & Margin Cliff (<5% Finding)</div>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Discount Band</th>
+                <th>Gross Revenue</th>
+                <th>Realized Margin</th>
+                <th>Volume Elasticity</th>
+                <th>Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><b>0% (Full Price)</b></td><td>$11,564,918</td><td>32.65%</td><td>Base Volume</td><td><span class="tag tag-green">Protect</span></td></tr>
+              <tr><td><b>&lt; 5% (Minimal)</b></td><td>$6,776,802</td><td>32.53%</td><td>High Conversion</td><td><span class="tag tag-green">Optimal Zone</span></td></tr>
+              <tr><td>5% - 10% (Moderate)</td><td>$3,460,870</td><td>32.08%</td><td>Moderate</td><td><span class="tag tag-orange">Monitor</span></td></tr>
+              <tr><td>11% - 15% (High)</td><td>$1,936,948</td><td>31.94%</td><td>Low Elasticity</td><td><span class="tag tag-orange">Restrict</span></td></tr>
+              <tr><td>&gt; 15% (Steep)</td><td>$1,098,961</td><td>31.96%</td><td>Value-Destructive</td><td><span class="tag tag-orange">Cap at 10%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Pareto 80/20 Sub-Category Profit Matrix</div>
+        </div>
+        <div class="bar-chart-container">
+          <div class="bar-row">
+            <div class="bar-label-group"><span>1. Laptops</span><span>$3.48M Profit (33.6% Margin)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 95%;"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label-group"><span>2. Smartphones & Tablets</span><span>$1.05M Profit (33.6% Margin)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 58%;"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label-group"><span>3. Monitors & Displays</span><span>$0.82M Profit (33.7% Margin)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 48%;"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label-group"><span>4. Desks & Workstations</span><span>$0.66M Profit (30.0% Margin)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 38%;"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label-group"><span>5. Office Tables</span><span>$0.62M Profit (30.0% Margin)</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 34%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 5: SQL EXPLORER ================= -->
+  <div id="page-sql" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Interactive SQL Query Sandbox & Verification</div>
+        <select id="querySelect" onchange="loadSQLQuery()" style="padding:6px 12px; font-weight:700;">
+          <option value="1">Query 1: Executive YoY KPI Growth Rate (LAG Window Function)</option>
+          <option value="2">Query 2: 3-Month Moving Average (ROWS BETWEEN 2 PRECEDING)</option>
+          <option value="3">Query 3: Pareto 80/20 Cumulative Distribution</option>
+          <option value="4">Query 4: Regional Revenue vs Margin Rank (DENSE_RANK)</option>
+          <option value="5">Query 5: Top 10 High-Spend Customers (NTILE 10 Deciles)</option>
+          <option value="6">Query 6: Discount Elasticity & Margin Degradation</option>
+          <option value="7">Query 7: Customer Retention & Repeat Purchase Conversion</option>
+          <option value="8">Query 8: Market Basket / Product Affinity Co-Purchase Pairs</option>
+          <option value="9">Query 9: RFM Lifecycle Customer Segmentation Matrix</option>
+          <option value="10">Query 10: Running YTD Sales vs $24.8M Target Milestone</option>
+        </select>
+      </div>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:10px;" id="sqlDesc">
+        Calculates annual revenue, profit margin, units, and year-over-year percentage growth rates.
+      </div>
+      <pre class="sql-code-box" id="sqlDisplay">
+WITH YearlyMetrics AS (
+    SELECT 
+        Year,
+        ROUND(SUM(Sales), 2) AS Total_Sales,
+        ROUND(SUM(Profit), 2) AS Total_Profit,
+        ROUND(SUM(Profit) * 100.0 / SUM(Sales), 2) AS Profit_Margin_Pct,
+        SUM(Quantity) AS Total_Units
+    FROM sales_orders
+    GROUP BY Year
+)
+SELECT 
+    Year,
+    Total_Sales,
+    LAG(Total_Sales) OVER (ORDER BY Year) AS Prior_Year_Sales,
+    ROUND((Total_Sales - LAG(Total_Sales) OVER (ORDER BY Year)) * 100.0 / LAG(Total_Sales) OVER (ORDER BY Year), 2) AS Sales_YoY_Growth_Pct,
+    Profit_Margin_Pct,
+    Total_Units
+FROM YearlyMetrics;
+      </pre>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar (Tab Switcher) -->
+  <div class="bottom-nav">
+    <div class="nav-tab active" onclick="navigateToTab('exec')">📊 Executive Summary</div>
+    <div class="nav-tab" onclick="navigateToTab('trends')">📈 Sales Trends</div>
+    <div class="nav-tab" onclick="navigateToTab('cust')">👥 Customer Insights</div>
+    <div class="nav-tab" onclick="navigateToTab('prod')">📦 Product Analysis</div>
+    <div class="nav-tab" onclick="navigateToTab('sql')">💻 SQL Query Explorer</div>
+  </div>
+
+  <!-- Pure Vanilla JavaScript Reactive Engine -->
+  <script>
+    // Tab Navigation Engine
+    function navigateToTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+      const targetPage = document.getElementById('page-' + tabName);
+      if (targetPage) targetPage.classList.add('active');
+
+      const tabs = ['exec', 'trends', 'cust', 'prod', 'sql'];
+      const idx = tabs.indexOf(tabName);
+      if (idx !== -1) {
+        document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Dynamic Slicer & Filter Engine
+    function runFilters() {
+      const yr = document.getElementById('yearSelect').value;
+      const cat = document.getElementById('catSelect').value;
+      const reg = document.getElementById('regSelect').value;
+
+      document.getElementById('pillYear').innerText = 'Year: ' + yr;
+      document.getElementById('pillCat').innerText = 'Category: ' + cat;
+      document.getElementById('pillReg').innerText = 'Region: ' + reg;
+
+      const salesEl = document.getElementById('kpiSalesVal');
+      const marginEl = document.getElementById('kpiMarginVal');
+      const unitsEl = document.getElementById('kpiUnitsVal');
+      const badgeSales = document.getElementById('kpiSalesBadge');
+
+      if (yr === '2025') {
+        if (cat === 'Electronics') {
+          salesEl.innerText = '$16.7M';
+          marginEl.innerText = '33.6%';
+          unitsEl.innerText = '12.4K';
+          badgeSales.innerText = '▲ 67.2% of Total';
+        } else if (cat === 'Furniture') {
+          salesEl.innerText = '$6.1M';
+          marginEl.innerText = '30.0%';
+          unitsEl.innerText = '4.5K';
+          badgeSales.innerText = '▲ 24.6% of Total';
+        } else if (reg === 'West') {
+          salesEl.innerText = '$9.7M';
+          marginEl.innerText = '32.6%';
+          unitsEl.innerText = '7.2K';
+          badgeSales.innerText = '▲ 39.0% Regional Lead';
+        } else {
+          salesEl.innerText = '$24.8M';
+          marginEl.innerText = '32.4%';
+          unitsEl.innerText = '18.6K';
+          badgeSales.innerText = '▲ 12.5% vs LY';
+        }
+      } else if (yr === '2024') {
+        salesEl.innerText = '$22.0M';
+        marginEl.innerText = '30.3%';
+        unitsEl.innerText = '17.0K';
+        badgeSales.innerText = 'Baseline Year';
+      } else {
+        salesEl.innerText = '$46.9M';
+        marginEl.innerText = '31.4%';
+        unitsEl.innerText = '35.4K';
+        badgeSales.innerText = '▲ 2-Year Total';
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('yearSelect').value = '2025';
+      document.getElementById('catSelect').value = 'ALL';
+      document.getElementById('regSelect').value = 'ALL';
+      runFilters();
+    }
+
+    function filterByRegion(r) {
+      document.getElementById('regSelect').value = r;
+      runFilters();
+    }
+
+    function filterByCategory(c) {
+      document.getElementById('catSelect').value = c;
+      runFilters();
+    }
+
+    function highlightKPI(kpiType) {
+      if (kpiType === 'sales') navigateToTab('trends');
+      if (kpiType === 'margin') navigateToTab('prod');
+      if (kpiType === 'units') navigateToTab('cust');
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // Tooltips
+    function showTip(e, text) {
+      const tip = document.getElementById('tooltip');
+      tip.innerText = text;
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 12) + 'px';
+      tip.style.top = (e.clientY + 12) + 'px';
+    }
+
+    function hideTip() {
+      document.getElementById('tooltip').style.display = 'none';
+    }
+
+    // Export CSV
+    function exportDataCSV() {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "Metric,CY_2025,LY_2024,YoY_Growth\n" +
+        "Total Sales,$24.8M,$22.0M,+12.5%\n" +
+        "Profit Margin,32.4%,30.3%,+2.1 pts\n" +
+        "Units Sold,18.6K,17.0K,+8.3%\n" +
+        "Electronics Sales,$16.7M,$14.8M,+12.8%\n" +
+        "West Region Sales,$9.7M,$8.6M,+12.8%\n";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "Sales_Analytics_Executive_Summary.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportTableToCSV(tableId, filename) {
+      let csv = [];
+      const rows = document.querySelectorAll("#" + tableId + " tr");
+      for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"');
+        csv.push(row.join(","));
+      }
+      const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+      const downloadLink = document.createElement("a");
+      downloadLink.download = filename;
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
+    // SQL Sandbox Query Code Database
+    const sqlQueries = {
+      "1": {
+        desc: "Query 1: Computes Total Revenue, Profit Margin, Units, and Year-over-Year (YoY) percentage changes using LAG().",
+        sql: `WITH YearlyMetrics AS (
+    SELECT 
+        Year,
+        ROUND(SUM(Sales), 2) AS Total_Sales,
+        ROUND(SUM(Profit), 2) AS Total_Profit,
+        ROUND(SUM(Profit) * 100.0 / SUM(Sales), 2) AS Profit_Margin_Pct,
+        SUM(Quantity) AS Total_Units
+    FROM sales_orders
+    GROUP BY Year
+)
+SELECT 
+    Year,
+    Total_Sales,
+    LAG(Total_Sales) OVER (ORDER BY Year) AS Prior_Year_Sales,
+    ROUND((Total_Sales - LAG(Total_Sales) OVER (ORDER BY Year)) * 100.0 / LAG(Total_Sales) OVER (ORDER BY Year), 2) AS Sales_YoY_Growth_Pct,
+    Profit_Margin_Pct,
+    LAG(Profit_Margin_Pct) OVER (ORDER BY Year) AS Prior_Year_Margin,
+    ROUND(Profit_Margin_Pct - LAG(Profit_Margin_Pct) OVER (ORDER BY Year), 2) AS Margin_Delta_Points,
+    Total_Units
+FROM YearlyMetrics;`
+      },
+      "2": {
+        desc: "Query 2: Computes a trailing 3-month moving average of revenue using a sliding window frame to smooth seasonality.",
+        sql: `SELECT 
+    Month,
+    Month_Name,
+    ROUND(SUM(Sales), 2) AS Monthly_Revenue,
+    ROUND(AVG(SUM(Sales)) OVER (
+        ORDER BY Month 
+        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 2) AS Trailing_3M_Avg_Revenue
+FROM sales_orders
+WHERE Year = 2025
+GROUP BY Month, Month_Name
+ORDER BY Month;`
+      },
+      "3": {
+        desc: "Query 3: Computes cumulative running total percentages of revenue across product categories to verify the 80/20 Pareto principle.",
+        sql: `WITH SubCatSales AS (
+    SELECT 
+        Category,
+        Sub_Category,
+        ROUND(SUM(Sales), 2) AS SubCat_Sales
+    FROM sales_orders
+    WHERE Year = 2025
+    GROUP BY Category, Sub_Category
+)
+SELECT 
+    Category,
+    Sub_Category,
+    SubCat_Sales,
+    ROUND(SUM(SubCat_Sales) OVER (ORDER BY SubCat_Sales DESC) * 100.0 / SUM(SubCat_Sales) OVER (), 2) AS Cumulative_Pct
+FROM SubCatSales
+ORDER BY SubCat_Sales DESC;`
+      },
+      "4": {
+        desc: "Query 4: Uses DENSE_RANK() to compare volume rank versus profitability margin rank across sales territories.",
+        sql: `SELECT 
+    Region,
+    ROUND(SUM(Sales), 2) AS Total_Revenue,
+    ROUND(SUM(Profit) * 100.0 / SUM(Sales), 2) AS Margin_Pct,
+    DENSE_RANK() OVER (ORDER BY SUM(Sales) DESC) AS Volume_Rank,
+    DENSE_RANK() OVER (ORDER BY SUM(Profit) * 1.0 / SUM(Sales) DESC) AS Margin_Rank
+FROM sales_orders
+WHERE Year = 2025
+GROUP BY Region
+ORDER BY Total_Revenue DESC;`
+      },
+      "5": {
+        desc: "Query 5: Stratifies customers into spend deciles using NTILE(10) to identify top 10% VIP accounts.",
+        sql: `SELECT 
+    Customer_ID,
+    Customer_Name,
+    ROUND(SUM(Sales), 2) AS Total_Spent,
+    NTILE(10) OVER (ORDER BY SUM(Sales) DESC) AS Spend_Decile
+FROM sales_orders
+GROUP BY Customer_ID, Customer_Name
+ORDER BY Total_Spent DESC
+LIMIT 10;`
+      },
+      "6": {
+        desc: "Query 6: Groups orders into 5 discount tiers using CASE WHEN to identify the 5% margin erosion cliff.",
+        sql: `SELECT 
+    CASE 
+        WHEN Discount = 0.0 THEN '0% (Full Price)'
+        WHEN Discount <= 0.05 THEN '< 5% (Minimal)'
+        WHEN Discount <= 0.10 THEN '5% - 10% (Moderate)'
+        WHEN Discount <= 0.15 THEN '11% - 15% (High)'
+        ELSE '> 15% (Steep)'
+    END AS Discount_Band,
+    COUNT(*) AS Order_Count,
+    ROUND(SUM(Sales), 2) AS Total_Sales,
+    ROUND(SUM(Profit) * 100.0 / SUM(Sales), 2) AS Realized_Margin_Pct
+FROM sales_orders
+WHERE Year = 2025
+GROUP BY Discount_Band
+ORDER BY Discount_Band;`
+      },
+      "7": {
+        desc: "Query 7: Calculates customer repeat purchase rates and average spend per customer across customer segments.",
+        sql: `WITH CustomerOrders AS (
+    SELECT 
+        Customer_ID,
+        Customer_Segment,
+        COUNT(DISTINCT Order_ID) AS Orders,
+        SUM(Sales) AS Spend
+    FROM sales_orders
+    GROUP BY Customer_ID, Customer_Segment
+)
+SELECT 
+    Customer_Segment,
+    COUNT(*) AS Total_Customers,
+    ROUND(SUM(CASE WHEN Orders > 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS Repeat_Rate_Pct,
+    ROUND(AVG(Spend), 2) AS Avg_Customer_Spend
+FROM CustomerOrders
+GROUP BY Customer_Segment;`
+      },
+      "8": {
+        desc: "Query 8: Self-joins sales_orders on Order_ID to discover cross-category product affinities (market basket).",
+        sql: `SELECT 
+    p1.Product_Name AS Product_A,
+    p2.Product_Name AS Product_B,
+    COUNT(DISTINCT o1.Order_ID) AS Co_Purchase_Count
+FROM sales_orders o1
+JOIN sales_orders o2 ON o1.Order_ID = o2.Order_ID AND o1.Product_ID < o2.Product_ID
+JOIN sales_orders p1 ON o1.Order_ID = p1.Order_ID AND o1.Product_ID = p1.Product_ID
+JOIN sales_orders p2 ON o2.Order_ID = p2.Order_ID AND o2.Product_ID = p2.Product_ID
+GROUP BY Product_A, Product_B
+ORDER BY Co_Purchase_Count DESC
+LIMIT 10;`
+      },
+      "9": {
+        desc: "Query 9: Assigns quartile scores for Recency, Frequency, and Monetary dimensions to generate RFM segments.",
+        sql: `WITH RFM_Base AS (
+    SELECT 
+        Customer_ID,
+        ROUND(JULIANDAY('2025-12-31') - JULIANDAY(MAX(Order_Date)), 0) AS Recency_Days,
+        COUNT(DISTINCT Order_ID) AS Frequency,
+        ROUND(SUM(Sales), 2) AS Monetary
+    FROM sales_orders
+    WHERE Year = 2025
+    GROUP BY Customer_ID
+)
+SELECT 
+    Customer_ID,
+    Recency_Days, Frequency, Monetary,
+    NTILE(4) OVER (ORDER BY Recency_Days DESC) || 
+    NTILE(4) OVER (ORDER BY Frequency ASC) || 
+    NTILE(4) OVER (ORDER BY Monetary ASC) AS RFM_Cell
+FROM RFM_Base
+ORDER BY Monetary DESC
+LIMIT 10;`
+      },
+      "10": {
+        desc: "Query 10: Tracks cumulative month-by-month sales pacing against the $24.8M annual target.",
+        sql: `WITH MonthlySales AS (
+    SELECT Month, Month_Name, ROUND(SUM(Sales), 2) AS Monthly_Revenue
+    FROM sales_orders
+    WHERE Year = 2025
+    GROUP BY Month, Month_Name
+)
+SELECT 
+    Month_Name,
+    Monthly_Revenue,
+    ROUND(SUM(Monthly_Revenue) OVER (ORDER BY Month), 2) AS Cumulative_YTD_Sales,
+    ROUND(SUM(Monthly_Revenue) OVER (ORDER BY Month) * 100.0 / 24800000.0, 2) AS Pct_Target_Achieved
+FROM MonthlySales
+ORDER BY Month;`
+      }
+    };
+
+    function loadSQLQuery() {
+      const qId = document.getElementById('querySelect').value;
+      const data = sqlQueries[qId];
+      if (data) {
+        document.getElementById('sqlDesc').innerText = data.desc;
+        document.getElementById('sqlDisplay').innerText = data.sql;
+      }
+    }
+  </script>
+</body>
+</html>
